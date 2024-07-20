@@ -1,25 +1,112 @@
-name: "Get Ref Info Action"
-description: "Get Ref Info Action"
+name: "Get Ref Info"
+description: "Returns information for the given ref"
 
 inputs:
-  placeholder:
-    description: "Placeholder input to be replaced by real inputs"
+  github_token:
+    description: "Github token used for API calls. Required scope - 'contents: read'"
+
+  owner:
+    description: "Owner of the repository"
+
+  repo:
+    description: "Repository name"
+
+  ref:
+    description: "Target ref name"
     required: true
-    default: "placeholder"
 
 outputs:
-  placeholder:
-    description: "Placeholder output to be replaced by real outputs"
-    value: ${{steps.placeholder.outputs.placeholder }}
+  exists:
+    description: "Ref exists"
+    value: ${{ steps.get-ref.outputs.exists }}
+
+  ref:
+    description: "Ref name"
+    value: ${{ steps.get-ref.outputs.ref }}
+
+  sha:
+    description: "Ref SHA"
+    value: ${{ steps.get-ref.outputs.sha }}
+
+  type:
+    description: "Ref type"
+    value: ${{ steps.get-ref.outputs.type }}
 
 runs:
   using: "composite"
   steps:
-    - name: Placeholder
-      id: placeholder
+    - name: Ensure owner
+      id: ensure-owner
       shell: bash
       run: |
-        echo "::set-output name=placeholder::${{ inputs.placeholder }}"
+        # Ensuring `owner` input, using repository owner if not provided
+        owner=${{ inputs.owner }}
+        if [[ -z "$owner" ]]; then
+          owner=${{ github.repository_owner }}
+        fi
+        echo "owner=${owner}" >> $GITHUB_OUTPUT
+
+    - name: Ensure repo
+      id: ensure-repo
+      shell: bash
+      run: |
+        # Ensuring `repo` input, using repository if not provided
+        repo=${{ inputs.repo }}
+        if [[ -z "$repo" ]]; then
+        repo=${{ github.event.repository.name }}
+        fi
+        echo "repo=${repo}" >> $GITHUB_OUTPUT
+
+    - name: Ensure token
+      id: ensure-token
+      shell: bash
+      run: |
+        # Ensuring `github_token` input, using `github.token` variable if not provided
+        github_token=${{ inputs.github_token }}
+        if [[ -z "$github_token" ]]; then
+          github_token=${{ github.token }}
+        fi
+        echo "github_token=${github_token}" >> $GITHUB_OUTPUT
+
+    - name: Get ref
+      id: get-ref
+      shell: bash
+      run: |
+        # Getting tag ref information
+        owner=${{ steps.ensure-owner.outputs.owner }}
+        repo=${{ steps.ensure-repo.outputs.repo }}
+        ref=${{ inputs.ref }}
+
+        set +e
+        response=$( \
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /repos/$owner/$repo/git/ref/$ref \
+        )
+        exit_code=$?
+        set -e
+
+        echo "response=${response}"
+        echo "exit_code=${exit_code}"
+
+        if [[ $exit_code -ne 0 ]]; then
+          response_code=$(echo $response | jq -r '.status')
+          if [[ "$response_code" == "404" ]]; then
+            echo "exists=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "$response"
+          exit 1
+        fi
+
+        echo "exists=true" >> $GITHUB_OUTPUT
+        echo "ref=${ref}" >> $GITHUB_OUTPUT
+        echo "sha=$(echo $response | jq -r '.object.sha')" >> $GITHUB_OUTPUT
+        echo "type=$(echo $response | jq -r '.object.type')" >> $GITHUB_OUTPUT
+      env:
+        GH_TOKEN: ${{ steps.ensure-token.outputs.github_token }}
 
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
 branding:
