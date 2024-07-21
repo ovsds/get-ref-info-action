@@ -4,12 +4,15 @@ description: "Returns information for the given ref"
 inputs:
   github_token:
     description: "Github token used for API calls. Required scope - 'contents: read'"
+    default: ${{ github.token }}
 
   owner:
     description: "Owner of the repository"
+    default: ${{ github.repository_owner }}
 
   repo:
     description: "Repository name"
+    default: ${{ github.event.repository.name }}
 
   ref:
     description: "Target ref name"
@@ -35,46 +38,13 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Ensure owner
-      id: ensure-owner
-      shell: bash
-      run: |
-        # Ensuring `owner` input, using repository owner if not provided
-        owner=${{ inputs.owner }}
-        if [[ -z "$owner" ]]; then
-          owner=${{ github.repository_owner }}
-        fi
-        echo "owner=${owner}" >> $GITHUB_OUTPUT
-
-    - name: Ensure repo
-      id: ensure-repo
-      shell: bash
-      run: |
-        # Ensuring `repo` input, using repository if not provided
-        repo=${{ inputs.repo }}
-        if [[ -z "$repo" ]]; then
-        repo=${{ github.event.repository.name }}
-        fi
-        echo "repo=${repo}" >> $GITHUB_OUTPUT
-
-    - name: Ensure token
-      id: ensure-token
-      shell: bash
-      run: |
-        # Ensuring `github_token` input, using `github.token` variable if not provided
-        github_token=${{ inputs.github_token }}
-        if [[ -z "$github_token" ]]; then
-          github_token=${{ github.token }}
-        fi
-        echo "github_token=${github_token}" >> $GITHUB_OUTPUT
-
     - name: Get ref
       id: get-ref
       shell: bash
       run: |
         # Getting tag ref information
-        owner=${{ steps.ensure-owner.outputs.owner }}
-        repo=${{ steps.ensure-repo.outputs.repo }}
+        owner=${{ inputs.owner }}
+        repo=${{ inputs.repo }}
         ref=${{ inputs.ref }}
 
         set +e
@@ -106,7 +76,7 @@ runs:
         echo "sha=$(echo $response | jq -r '.object.sha')" >> $GITHUB_OUTPUT
         echo "type=$(echo $response | jq -r '.object.type')" >> $GITHUB_OUTPUT
       env:
-        GH_TOKEN: ${{ steps.ensure-token.outputs.github_token }}
+        GH_TOKEN: ${{ inputs.github_token }}
 
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
 branding:
