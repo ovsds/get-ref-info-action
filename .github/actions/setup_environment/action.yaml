@@ -18,6 +18,14 @@ inputs:
     description: "Zizmor enabled"
     required: true
     default: "false"
+  shellcheck-version:
+    description: "Shellcheck version"
+    required: true
+    default: "0.9.0-1"
+  shellcheck-enabled:
+    description: "Shellcheck enabled"
+    required: true
+    default: "false"
 
 runs:
   using: "composite"
@@ -36,3 +44,12 @@ runs:
         python -m pip install "zizmor==${ZIZMOR_VERSION}"
       env:
         ZIZMOR_VERSION: ${{ inputs.zizmor-version }}
+
+    - name: Setup Shellcheck
+      if: ${{ inputs.shellcheck-enabled == 'true' }}
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y "shellcheck=${SHELLCHECK_VERSION}"
+      env:
+        SHELLCHECK_VERSION: ${{ inputs.shellcheck-version }}

@@ -76,6 +76,7 @@ outputs:
 - [Taskfile](https://taskfile.dev/installation/)
 - [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script)
 - [zizmor](https://woodruffw.github.io/zizmor/installation/) - used for GHA security scanning
+- [shellcheck](https://github.com/koalaman/shellcheck?tab=readme-ov-file#installing)
 
 ### Taskfile commands
 

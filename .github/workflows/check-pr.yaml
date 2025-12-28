@@ -28,6 +28,7 @@ jobs:
         uses: ./.github/actions/setup_environment
         with:
           zizmor-enabled: true
+          shellcheck-enabled: true
 
       - name: Install Dependencies
         run: |
