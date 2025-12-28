@@ -33,11 +33,17 @@ tasks:
       - task: _with_nvm
         vars: { COMMAND: "npm run lint:check" }
 
+      - echo 'Running GHA checks...'
+      - GH_TOKEN="$(gh auth token)" zizmor .
+
   lint-fix:
     desc: Lint fix project
     cmds:
       - task: _with_nvm
         vars: { COMMAND: "npm run lint:fix" }
+
+      - echo 'Running GHA checks...'
+      - GH_TOKEN="$(gh auth token)" zizmor .
 
   clean:
     desc: Clean project environment
@@ -77,6 +83,6 @@ tasks:
         node_version='v24.11.0'
         owner_name='Dmitry Ovsiannikov'
         owner_github_login='ovsds'
-        with_zizmor='false'
+        with_zizmor='true'
     vars:
       TEMPLATE_PATH: '{{.TEMPLATE_PATH | default "https://github.com/ovsds/template-repository-github-action"}}'
