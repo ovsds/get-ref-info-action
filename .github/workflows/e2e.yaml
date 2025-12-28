@@ -7,9 +7,13 @@ on:
       - reopened
       - synchronize
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
 jobs:
   e2e-default:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -17,6 +21,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Test Run
         id: test-run
@@ -49,7 +55,7 @@ jobs:
           expected: "commit"
 
   e2e-tag-type:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -89,7 +95,7 @@ jobs:
           expected: "tag"
 
   e2e-not-exists:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -127,3 +133,19 @@ jobs:
         with:
           actual: ${{ steps.test-run.outputs.type }}
           expected: ""
+
+  e2e:
+    runs-on: ubuntu-latest
+    if: always() && !cancelled()
+
+    needs:
+      - e2e-default
+      - e2e-tag-type
+      - e2e-not-exists
+
+    steps:
+      - name: Collect Results
+        uses: ovsds/collect-needs-result-action@v1
+        with:
+          needs_json: ${{ toJson(needs) }}
+          skip_allowed: false

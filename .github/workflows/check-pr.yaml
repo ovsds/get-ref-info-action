@@ -7,9 +7,13 @@ on:
       - reopened
       - synchronize
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
 jobs:
   check-pr:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -17,13 +21,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Environment
         uses: ./.github/actions/setup_environment
 
       - name: Install Dependencies
         run: |
-          task ci-init
+          task init
 
       - name: Lint PR
         run: |
