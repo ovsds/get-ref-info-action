@@ -56,6 +56,7 @@ runs:
       id: run
       shell: bash
       run: |
+        # Get ref info
         ${{ github.action_path }}/src/main.sh
       env:
         OWNER: ${{ inputs.owner }}
