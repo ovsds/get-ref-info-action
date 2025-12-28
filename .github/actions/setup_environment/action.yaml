@@ -6,11 +6,16 @@ inputs:
     description: "Task version"
     required: true
     default: "3.33.1"
+  task-enabled:
+    description: "Task enabled"
+    required: true
+    default: "true"
 
 runs:
   using: "composite"
   steps:
-    - name: Install Task
-      uses: arduino/setup-task@v1
+    - name: Setup Task
+      if: ${{ inputs.task-enabled == 'true' }}
+      uses: arduino/setup-task@v2.0.0
       with:
         version: ${{ inputs.task-version }}

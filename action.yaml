@@ -1,38 +1,48 @@
-name: "Get Ref Info"
-description: "Returns information for the given ref"
+name: |
+  Get Ref Info
+description: |
+  Returns information for the given ref
 
 inputs:
   github_token:
-    description: "Github token used for API calls. Required scope - 'contents: read'"
+    description: |
+      Github token used for API calls. Required scope - 'contents: read'
     default: ${{ github.token }}
 
   owner:
-    description: "Owner of the repository"
+    description: |
+      Owner of the repository
     default: ${{ github.repository_owner }}
 
   repo:
-    description: "Repository name"
+    description: |
+      Repository name
     default: ${{ github.event.repository.name }}
 
   ref:
-    description: "Target ref name"
+    description: |
+      Target ref name
     required: true
 
 outputs:
   exists:
-    description: "Ref exists"
+    description: |
+      Ref exists
     value: ${{ steps.get-ref.outputs.exists }}
 
   ref:
-    description: "Ref name"
+    description: |
+      Ref name
     value: ${{ steps.get-ref.outputs.ref }}
 
   sha:
-    description: "Ref SHA"
+    description: |
+      Ref SHA
     value: ${{ steps.get-ref.outputs.sha }}
 
   type:
-    description: "Ref type"
+    description: |
+      Ref type
     value: ${{ steps.get-ref.outputs.type }}
 
 runs:
