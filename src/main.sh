@@ -28,6 +28,7 @@ function main() {
     REF=${REF:-}
     GH_TOKEN=${GH_TOKEN:-}
 
+    print_info "Getting ref info..."
     set +e
     response=$( \
         gh api \
@@ -38,8 +39,8 @@ function main() {
     exit_code=$?
     set -e
 
-    print_info "Response: $response"
     print_info "Exit code: $exit_code"
+    print_info "Response: $response"
 
     if [[ $exit_code -ne 0 ]]; then
         response_code=$(echo $response | jq -r '.status')
