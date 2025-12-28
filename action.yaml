@@ -3,6 +3,10 @@ name: |
 description: |
   Returns information for the given ref
 
+branding:
+  icon: "message-square"
+  color: "gray-dark"
+
 inputs:
   github_token:
     description: |
@@ -28,67 +32,33 @@ outputs:
   exists:
     description: |
       Ref exists
-    value: ${{ steps.get-ref.outputs.exists }}
+    value: ${{ steps.run.outputs.exists }}
 
   ref:
     description: |
       Ref name
-    value: ${{ steps.get-ref.outputs.ref }}
+    value: ${{ steps.run.outputs.ref }}
 
   sha:
     description: |
       Ref SHA
-    value: ${{ steps.get-ref.outputs.sha }}
+    value: ${{ steps.run.outputs.sha }}
 
   type:
     description: |
       Ref type
-    value: ${{ steps.get-ref.outputs.type }}
+    value: ${{ steps.run.outputs.type }}
 
 runs:
   using: "composite"
   steps:
-    - name: Get ref
-      id: get-ref
+    - name: Run
+      id: run
       shell: bash
       run: |
-        # Getting tag ref information
-        owner=${{ inputs.owner }}
-        repo=${{ inputs.repo }}
-        ref=${{ inputs.ref }}
-
-        set +e
-        response=$( \
-          gh api \
-          -H "Accept: application/vnd.github+json" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          /repos/$owner/$repo/git/ref/$ref \
-        )
-        exit_code=$?
-        set -e
-
-        echo "response=${response}"
-        echo "exit_code=${exit_code}"
-
-        if [[ $exit_code -ne 0 ]]; then
-          response_code=$(echo $response | jq -r '.status')
-          if [[ "$response_code" == "404" ]]; then
-            echo "exists=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "$response"
-          exit 1
-        fi
-
-        echo "exists=true" >> $GITHUB_OUTPUT
-        echo "ref=${ref}" >> $GITHUB_OUTPUT
-        echo "sha=$(echo $response | jq -r '.object.sha')" >> $GITHUB_OUTPUT
-        echo "type=$(echo $response | jq -r '.object.type')" >> $GITHUB_OUTPUT
+        ${{ github.action_path }}/src/main.sh
       env:
+        OWNER: ${{ inputs.owner }}
+        REPO: ${{ inputs.repo }}
+        REF: ${{ inputs.ref }}
         GH_TOKEN: ${{ inputs.github_token }}
-
-# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
-branding:
-  icon: "message-square"
-  color: "gray-dark"
