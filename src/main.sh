@@ -3,7 +3,7 @@
 set -euo pipefail
 
 function print_info() {
-    echo "INFO: $1"
+    echo "$1"
 }
 
 function print_error() {
@@ -45,7 +45,7 @@ function main() {
     if [[ $exit_code -ne 0 ]]; then
         response_code=$(echo $response | jq -r '.status')
         if [[ "$response_code" == "404" ]]; then
-            print_error "Ref not found, exiting..."
+            print_info "Ref not found, exiting..."
             set_output "exists" "false"
             exit 0
         fi
