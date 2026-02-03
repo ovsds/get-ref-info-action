@@ -13,11 +13,11 @@
     "commit-msg": "commitlint"
   },
   "lint-staged": {
-    "*.{md,yaml,json,js}": [
-      "prettier --check"
-    ],
     "*.sh": [
       "shellcheck"
+    ],
+    "*.{md,yaml,json,js}": [
+      "prettier --check"
     ]
   },
   "scripts": {

@@ -84,5 +84,6 @@ tasks:
         owner_name='Dmitry Ovsiannikov'
         owner_github_login='ovsds'
         with_zizmor='true'
+        with_shellcheck='true'
     vars:
       TEMPLATE_PATH: '{{.TEMPLATE_PATH | default "https://github.com/ovsds/template-repository-github-action"}}'
