@@ -3,6 +3,7 @@ name: |
 description: |
   Returns information for the given ref
 
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
 branding:
   icon: "message-square"
   color: "gray-dark"
@@ -55,11 +56,11 @@ runs:
     - name: Run
       id: run
       shell: bash
-      run: |
-        # Get ref info
-        ${{ github.action_path }}/src/main.sh
       env:
         OWNER: ${{ inputs.owner }}
         REPO: ${{ inputs.repo }}
         REF: ${{ inputs.ref }}
         GH_TOKEN: ${{ inputs.github_token }}
+      run: |
+        # Get Ref Info
+        ${{ github.action_path }}/src/main.sh
