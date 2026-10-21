@@ -1,5 +1,4 @@
-name: |
-  Get Ref Info
+name: "Get Ref Info"
 description: |
   Returns information for the given ref
 
